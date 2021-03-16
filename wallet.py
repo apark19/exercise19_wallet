@@ -39,18 +39,6 @@ def create_tx(token_type, account, recipient, amount):
         raise Exception("amount is not valid, amount="+str(amount))
 
     if token_type==constants.ETH:
-        """
-        transaction={
-            'to':account.address,
-            'from':recipient,
-            'value':amount,
-            'gasPrice':w3.eth.gasPrice,
-            'gas':w3.eth.estimateGas({'from':account.address,'to':recipient,'value':web3.toWei(amount,'usd')}),
-            'nonce':w3.eth.getTransactionCount(account.address)
-}
-        return transaction
-        """
-
         nonce=w3.eth.getTransactionCount(account.address)
         tx={ 
             'nonce':nonce,
@@ -63,7 +51,6 @@ def create_tx(token_type, account, recipient, amount):
     elif token_type==constants.BTC_TEST:
         return account.create_transaction([(str(recipient),amount,'btc')])
     else:
-        print("other00")
         return -1
 
 def send_tx(token_type, account, recipient, amount): 
@@ -74,23 +61,13 @@ def send_tx(token_type, account, recipient, amount):
     if (amount<=0 or amount==None):
         raise Exception("amount is not valid, amount="+str(amount))
 
-    if token_type==constants.BTC:
-        print("BTC token")
-    elif token_type==constants.ETH:
-        
-
-        """
-        tx=create_tx('eth',account,recipient,amount)
-        signed=account.sign_transaction(tx)
-        result=w3.eth.sendRawTransaction(signed.rawTransaction)
-        return result
-        """
+    if token_type==constants.ETH:
+        return -1
     elif token_type==constants.BTC_TEST:
         tx_hash=create_tx('btc-test',account,recipient,amount)
         result=NetworkAPI.broadcast_tx_testnet(tx_hash)
         return result
     else:
-        print("other")
         return -1
 
 def gen_keyset(token, key):
@@ -190,59 +167,11 @@ def main(argv):
             print(keys['btc_test'][0]['address']) 
             result=send_tx('btc-test',acc,keys['btc_test'][0]['address'],amount)
         elif token_type==constants.ETH:
-            """
-            w3=Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
-            w3.middleware_onion.inject(geth_poa_middleware,layer=0)
-
-            print(w3.isConnected())
-
-            #acc=priv_key_to_account('eth',conf['eth_test_key'])
-            #privkey=""
-
-            with open("/Users/apm_daemon/Downloads/geth-alltools-darwin-amd64-1.9.25-e7872729/node1/keystore/UTC--2021-02-02T23-23-14.593739000Z--7afea3c1a2af5bdb994702712d6806c892027632") as keyfile:  
-                encrypted_key=keyfile.read()
-                private_key=w3.eth.account.decrypt(encrypted_key,"ageLess5534M")
-
-                acc=Account.from_key(private_key)
-                privkey=private_key
-          
-            print(acc.address)
-            print(keys['eth'][0]['address'])
-
-            '''
-            gasEstimate=w3.eth.estimateGas(
-                {
-                    "to":str(keys['eth'][0]['address']),
-                    "value":Web3.toWei('50','gwei')
-                }
-            )
-            print(gasEstimate)
-            '''
-            
-            transaction={
-                'to':str(keys['eth'][0]['address']),
-                'value':Web3.toWei(amount,'ether'),
-                'gasPrice':Web3.toWei('20','gwei'),
-                'gas':21000,
-                'nonce':w3.eth.getTransactionCount(acc.address),
-                'chainId':123
-            }
-
-            print("here")
-            signed=w3.eth.account.sign_transaction(transaction,privkey)
-
-            print("okay, signed")
-
-            result=w3.eth.sendRawTransaction(signed.rawTransaction)
-            print(w3.toHex(result))
-            """
-            
             w3=Web3(Web3.HTTPProvider("http://127.0.0.1:7001"))
             w3.middleware_onion.inject(geth_poa_middleware,layer=0)
 
             acc1="0xa039C2f9997d8978B1B85A02FB6FcFf58429d748"
             acc2="0x34BF41B6269B41A07d97603b6B4Ea5C6069eAf79"
-
             private_key="2aad86bfd8d83c18f4a372b429d80da806fafbe705f1c208ac423e0ad8c0c0b3"
             nonce=w3.eth.getTransactionCount(acc1)
             print(nonce)
@@ -258,8 +187,7 @@ def main(argv):
      
             signed=w3.eth.account.signTransaction(tx,private_key)
             tx_hash=w3.eth.sendRawTransaction(signed.rawTransaction)
-            print(w3.toHex(tx_hash))
-            
+            print(w3.toHex(tx_hash))          
         else:
             print("error, exiting....")
             return 1       
